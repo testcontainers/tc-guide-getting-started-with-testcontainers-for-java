@@ -1,0 +1,131 @@
+---
+title: "Getting started with Testcontainers for Java"
+date: 2023-02-10T09:39:58+05:30
+draft: false
+description: This guide will help you to get started with Testcontainers for Java by demonstrating how you can use PostgreSQL for testing.
+repo: https://github.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-java
+languages:
+  - Java
+tags:
+  - postgresql
+---
+:toc:
+:toclevels: 2
+:codebase: https://raw.githubusercontent.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-java/main
+
+Testcontainers is a testing library that provides easy and lightweight APIs for bootstrapping integration tests with real services
+wrapped in Docker containers. Using Testcontainers, you can write tests talking to the same type of services you use in production
+without mocks or in-memory services.
+
+[NOTE]
+If you are new to Testcontainers then please
+read https://testcontainers.com/guides/introducing-testcontainers[What is Testcontainers, and why should you use it?]
+to learn more about Testcontainers.
+
+Let us look at how we can use Testcontainers for testing a Java application using a Postgres database.
+
+== 1. Create a Java project with Maven
+
+Create a Java project with Maven build tool support from your favorite IDE.
+We are using Maven in this article, but you can use Gradle if you prefer.
+Once the project is created, add the following dependencies to the *pom.xml*.
+
+[source,xml,indent=0]
+----
+include::{codebase}/pom.xml[lines="18..34,43..53"]
+----
+
+We have added a Postgres JDBC driver for talking to the Postgres database, *logback-classic* for logging and *junit-jupiter* for testing with JUnit 5.
+Also, we have used the latest version of *maven-surefire-plugin* to support JUnit 5 tests.
+
+== 2. Implement business logic
+
+We are going to create *CustomerService* class to manage customer details.
+
+First let us create a *Customer* class as follows:
+
+[source,java]
+----
+include::{codebase}/src/main/java/com/testcontainers/demo/Customer.java[]
+----
+
+Create *DBConnectionProvider.java* class to hold JDBC connection parameters and create a method to get database *Connection* as follows:
+
+[source,java]
+----
+include::{codebase}/src/main/java/com/testcontainers/demo/DBConnectionProvider.java[]
+----
+
+Create *CustomerService.java* class and add the following code:
+
+[source,java]
+----
+include::{codebase}/src/main/java/com/testcontainers/demo/CustomerService.java[]
+----
+
+Let us understand what is going on in CustomerService class.
+
+* We are calling *connectionProvider.getConnection()* method to get a database Connection using JDBC API
+* We have the *createCustomersTableIfNotExists()* method that creates the customers table if it does not already exist.
+* We have *createCustomer()* method that inserts a new customer record into the database.
+* We have the *getAllCustomers()* method that fetches all rows from *customers* table, populates data into *Customer* objects
+  and returns a list of Customer objects.
+
+Now let us see how we can test *CustomerService* logic using Testcontainers.
+
+== 3. Add Testcontainers dependencies
+Before writing Testcontainers based tests let's add Testcontainers dependencies in *pom.xml* as follows:
+
+[source,xml]
+----
+<dependency>
+   <groupId>org.testcontainers</groupId>
+   <artifactId>postgresql</artifactId>
+   <version>1.17.6</version>
+   <scope>test</scope>
+</dependency>
+----
+
+As we are using a Postgres database for our application, we added the Testcontainers Postgres module as a test dependency.
+
+== 4. Write test using Testcontainers
+Create *CustomerServiceTest.java* under *src/test/java* with following code:
+
+[source,java]
+----
+include::{codebase}/src/test/java/com/testcontainers/demo/CustomerServiceTest.java[]
+----
+
+Let us understand the code in our CustomerServiceTest.
+
+* We declared *PostgreSQLContainer* by passing the Docker image name *postgres:15-alpine*.
+* The Postgres container is started using JUnit 5 *@BeforeAll* callback, which gets executed before running any test methods.
+* In *@BeforeEach* callback method, which gets executed before running every test method, we have created a *DBConnectionProvider* instance
+  by passing the JDBC connection parameters obtained from the Postgres container and also created a *CustomerService* instance.
+  In the *CustomerService* constructor, we are creating the customers table if it does not already exist.
+* We have a *shouldGetCustomers()* test where we are inserting 2 customer records into the database, fetching all the existing customers
+  and asserting the number of customers.
+* Finally, we are stopping the postgres container in *@AfterAll* callback method, which gets executed after all the test methods
+  in that class are executed.
+
+If you run the *CustomerServiceTest* you can see in the logs that Testcontainers pulled the Postgres Docker image
+from DockerHub if not already available locally, started the container and executed the test.
+
+Voila!!! You have your first Testcontainers-based test running.
+
+== Conclusion
+
+We have explored how to use Testcontainers for Java library for testing a Java application using a Postgres database.
+
+We have seen how writing an integration test using Testcontainers is very similar to writing a unit test which you can run from your IDE.
+Also, any of your teammates can clone the project and run tests without installing Postgres on their computers.
+
+In addition to Postgres, Testcontainers provides dedicated modules to many commonly used SQL databases, NoSQL databases, messaging queues, etc.
+You can use Testcontainers to run any containerized dependency for your tests!
+
+You can explore more about Testcontainers at https://www.testcontainers.com/.
+
+== Further Reading
+* https://testcontainers.com/guides/testcontainers-container-lifecycle/
+* https://testcontainers.com/guides/replace-h2-with-real-database-for-testing/
+* https://testcontainers.com/guides/testing-spring-boot-rest-api-using-testcontainers/
