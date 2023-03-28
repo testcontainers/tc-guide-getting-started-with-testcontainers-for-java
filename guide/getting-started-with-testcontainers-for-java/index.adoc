@@ -24,7 +24,7 @@ to learn more about Testcontainers.
 
 Let us look at how we can use Testcontainers for testing a Java application using a Postgres database.
 
-== 1. Create a Java project with Maven
+== Create a Java project with Maven
 
 Create a Java project with Maven build tool support from your favorite IDE.
 We are using Maven in this article, but you can use Gradle if you prefer.
@@ -38,7 +38,7 @@ include::{codebase}/pom.xml[lines="18..34,43..53"]
 We have added a Postgres JDBC driver for talking to the Postgres database, *logback-classic* for logging and *junit-jupiter* for testing with JUnit 5.
 Also, we have used the latest version of *maven-surefire-plugin* to support JUnit 5 tests.
 
-== 2. Implement business logic
+== Implement business logic
 
 We are going to create *CustomerService* class to manage customer details.
 
@@ -73,22 +73,17 @@ Let us understand what is going on in CustomerService class.
 
 Now let us see how we can test *CustomerService* logic using Testcontainers.
 
-== 3. Add Testcontainers dependencies
+== Add Testcontainers dependencies
 Before writing Testcontainers based tests let's add Testcontainers dependencies in *pom.xml* as follows:
 
-[source,xml]
+[source,xml,indent=0]
 ----
-<dependency>
-   <groupId>org.testcontainers</groupId>
-   <artifactId>postgresql</artifactId>
-   <version>1.17.6</version>
-   <scope>test</scope>
-</dependency>
+include::{codebase}/pom.xml[lines="36..41"]
 ----
 
 As we are using a Postgres database for our application, we added the Testcontainers Postgres module as a test dependency.
 
-== 4. Write test using Testcontainers
+== Write test using Testcontainers
 Create *CustomerServiceTest.java* under *src/test/java* with following code:
 
 [source,java]
