@@ -121,6 +121,6 @@ You can use Testcontainers to run any containerized dependency for your tests!
 You can explore more about Testcontainers at https://www.testcontainers.com/.
 
 == Further Reading
-* https://testcontainers.com/guides/testcontainers-container-lifecycle/
-* https://testcontainers.com/guides/replace-h2-with-real-database-for-testing/
-* https://testcontainers.com/guides/testing-spring-boot-rest-api-using-testcontainers/
+* https://testcontainers.com/guides/testcontainers-container-lifecycle/[Testcontainers container lifecycle management using JUnit 5]
+* https://testcontainers.com/guides/replace-h2-with-real-database-for-testing/[The simplest way to replace H2 with a real database for testing]
+* https://testcontainers.com/guides/testing-spring-boot-rest-api-using-testcontainers/[Getting started with Testcontainers in a Java Spring Boot Project]
