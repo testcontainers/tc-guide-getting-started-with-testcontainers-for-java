@@ -1,48 +1,48 @@
 package com.testcontainers.demo;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class CustomerServiceTest {
-    static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:15-alpine");
 
-    CustomerService customerService;
+  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+    "postgres:15-alpine"
+  );
 
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-    }
+  CustomerService customerService;
 
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-    }
+  @BeforeAll
+  static void beforeAll() {
+    postgres.start();
+  }
 
-    @BeforeEach
-    void setUp() {
-        DBConnectionProvider connectionProvider = new DBConnectionProvider(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword()
-        );
-        customerService = new CustomerService(connectionProvider);
-    }
+  @AfterAll
+  static void afterAll() {
+    postgres.stop();
+  }
 
-    @Test
-    void shouldGetCustomers() {
-        customerService.createCustomer(new Customer(1L, "George"));
-        customerService.createCustomer(new Customer(2L, "John"));
+  @BeforeEach
+  void setUp() {
+    DBConnectionProvider connectionProvider = new DBConnectionProvider(
+      postgres.getJdbcUrl(),
+      postgres.getUsername(),
+      postgres.getPassword()
+    );
+    customerService = new CustomerService(connectionProvider);
+  }
 
-        List<Customer> customers = customerService.getAllCustomers();
-        assertEquals(2, customers.size());
-    }
+  @Test
+  void shouldGetCustomers() {
+    customerService.createCustomer(new Customer(1L, "George"));
+    customerService.createCustomer(new Customer(2L, "John"));
 
+    List<Customer> customers = customerService.getAllCustomers();
+    assertEquals(2, customers.size());
+  }
 }
