@@ -20,7 +20,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.6.0'
     implementation 'ch.qos.logback:logback-classic:1.4.6'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
     testImplementation 'org.testcontainers:postgresql:1.18.0'
 }
 
