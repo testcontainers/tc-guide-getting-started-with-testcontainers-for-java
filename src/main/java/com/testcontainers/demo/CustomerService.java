@@ -33,7 +33,9 @@ public class CustomerService {
     List<Customer> customers = new ArrayList<>();
 
     try (Connection conn = this.connectionProvider.getConnection()) {
-      PreparedStatement pstmt = conn.prepareStatement("select id,name from customers");
+      PreparedStatement pstmt = conn.prepareStatement(
+        "select id,name from customers"
+      );
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         long id = rs.getLong("id");
@@ -50,12 +52,12 @@ public class CustomerService {
     try (Connection conn = this.connectionProvider.getConnection()) {
       PreparedStatement pstmt = conn.prepareStatement(
         """
-                    create table if not exists customers (
-                        id bigint not null,
-                        name varchar not null,
-                        primary key (id)
-                    )
-                    """
+        create table if not exists customers (
+            id bigint not null,
+            name varchar not null,
+            primary key (id)
+        )
+        """
       );
       pstmt.execute();
     } catch (SQLException e) {

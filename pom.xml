@@ -13,7 +13,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <plugin.prettier.goal>check</plugin.prettier.goal>
     </properties>
 
     <dependencies>
@@ -25,18 +24,18 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.6</version>
+            <version>1.4.8</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.18.0</version>
+            <version>1.19.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -46,25 +45,36 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.2</version>
             </plugin>
             <plugin>
-                <groupId>com.hubspot.maven.plugins</groupId>
-                <artifactId>prettier-maven-plugin</artifactId>
-                <version>0.16</version>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.41.0</version>
                 <configuration>
-                    <prettierJavaVersion>1.5.0</prettierJavaVersion>
-                    <printWidth>90</printWidth>
-                    <tabWidth>2</tabWidth>
-                    <useTabs>false</useTabs>
-                    <ignoreConfigFile>true</ignoreConfigFile>
-                    <ignoreEditorConfig>true</ignoreEditorConfig>
+                    <java>
+                        <importOrder />
+                        <removeUnusedImports />
+                        <prettier>
+                            <devDependencies>
+                                <prettier>3.0.3</prettier>
+                                <prettier-plugin-java>2.3.0</prettier-plugin-java>
+                            </devDependencies>
+                            <config>
+                                <parser>java</parser>
+                                <tabWidth>2</tabWidth>
+                                <printWidth>80</printWidth>
+                                <plugins>prettier-plugin-java</plugins>
+                            </config>
+                        </prettier>
+                        <formatAnnotations />
+                    </java>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <phase>compile</phase>
                         <goals>
-                            <goal>${plugin.prettier.goal}</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>

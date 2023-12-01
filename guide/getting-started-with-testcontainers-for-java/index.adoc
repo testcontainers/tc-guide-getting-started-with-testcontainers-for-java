@@ -32,7 +32,7 @@ Once the project is created, add the following dependencies to the *pom.xml*.
 
 [source,xml,indent=0]
 ----
-include::{codebase}/pom.xml[lines="18..35,42..50,72..73"]
+include::{codebase}/pom.xml[lines="18..34,41..49,82..83"]
 ----
 
 We have added a Postgres JDBC driver for talking to the Postgres database, *logback-classic* for logging and *junit-jupiter* for testing with JUnit 5.
@@ -78,13 +78,13 @@ Before writing Testcontainers based tests let's add Testcontainers dependencies 
 
 [source,xml,indent=0]
 ----
-include::{codebase}/pom.xml[lines="36..41"]
+include::{codebase}/pom.xml[lines="35..40"]
 ----
 
 As we are using a Postgres database for our application, we added the Testcontainers Postgres module as a test dependency.
 
 == Write test using Testcontainers
-Create *CustomerServiceTest.java* under *src/test/java* with following code:
+Create *CustomerServiceTest.java* under *src/test/java* with the following code:
 
 [source,java]
 ----
