@@ -22,7 +22,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.4.8'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-    testImplementation 'org.testcontainers:postgresql:1.19.3'
+    testImplementation 'org.testcontainers:postgresql:1.19.6'
 }
 
 tasks.named('test') {
