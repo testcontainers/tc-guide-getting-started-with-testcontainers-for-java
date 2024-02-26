@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'org.postgresql:postgresql:42.7.2'
     implementation 'ch.qos.logback:logback-classic:1.4.8'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
