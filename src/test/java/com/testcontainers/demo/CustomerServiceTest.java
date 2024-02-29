@@ -3,6 +3,10 @@ package com.testcontainers.demo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+
+import com.testcontainers.demo.domain.Customer;
+import com.testcontainers.demo.service.CustomerService;
+import com.testcontainers.demo.service.DBConnectionProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +39,7 @@ class CustomerServiceTest {
       postgres.getPassword()
     );
     customerService = new CustomerService(connectionProvider);
+    customerService.clearAll();
   }
 
   @Test
@@ -44,5 +49,15 @@ class CustomerServiceTest {
 
     List<Customer> customers = customerService.getAllCustomers();
     assertEquals(2, customers.size());
+  }
+
+  @Test
+  void shouldGet3Customers() {
+    customerService.createCustomer(new Customer(1L, "George"));
+    customerService.createCustomer(new Customer(2L, "John"));
+    customerService.createCustomer(new Customer(3L, "John"));
+
+    List<Customer> customers = customerService.getAllCustomers();
+    assertEquals(3, customers.size());
   }
 }

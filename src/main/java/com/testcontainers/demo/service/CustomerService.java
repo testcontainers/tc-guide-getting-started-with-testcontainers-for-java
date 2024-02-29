@@ -1,4 +1,6 @@
-package com.testcontainers.demo;
+package com.testcontainers.demo.service;
+
+import com.testcontainers.demo.domain.Customer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -64,4 +66,18 @@ public class CustomerService {
       throw new RuntimeException(e);
     }
   }
+
+    public void clearAll() {
+      try (Connection conn = this.connectionProvider.getConnection()) {
+        PreparedStatement pstmt = conn.prepareStatement(
+                """
+                drop table customers
+                """
+        );
+        pstmt.execute();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+      createCustomersTableIfNotExists();
+    }
 }

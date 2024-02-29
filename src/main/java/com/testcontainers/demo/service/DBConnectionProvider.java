@@ -1,9 +1,9 @@
-package com.testcontainers.demo;
+package com.testcontainers.demo.service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-class DBConnectionProvider {
+public class DBConnectionProvider {
 
   private final String url;
   private final String username;
