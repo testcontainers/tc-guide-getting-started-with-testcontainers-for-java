@@ -47,25 +47,25 @@ public class ServiceNowController {
     @PutMapping("/application")
     public ResponseEntity<Application> updateApplication(@RequestBody Application application) {
         applicationService.updateApplication(application);
-        return new ResponseEntity<Application>(application, HttpStatus.OK);
+        return new ResponseEntity<>(application, HttpStatus.OK);
     }
 
     @DeleteMapping("/application/{id}")
     public ResponseEntity<Void> deleteApplication(@PathVariable("id") Integer id) {
         applicationService.deleteApplication(id);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/ticket/{id}")
     public ResponseEntity<Ticket> getTicketById(@PathVariable("id") Integer id) {
         Ticket ticket = ticketService.getTicketById(id);
-        return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 
     @GetMapping("/tickets")
     public ResponseEntity<List<Ticket>> getAllTickets() {
         List<Ticket> list = ticketService.getAllTickets();
-        return new ResponseEntity<List<Ticket>>(list, HttpStatus.OK);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PostMapping("/ticket")
@@ -73,13 +73,13 @@ public class ServiceNowController {
         ticketService.addTicket(ticket);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/ticket/{id}").buildAndExpand(ticket.getId()).toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/ticket")
     public ResponseEntity<Ticket> updateTicket(@RequestBody Ticket ticket) {
         ticketService.updateTicket(ticket);
-        return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 
     @DeleteMapping("/ticket/{id}")

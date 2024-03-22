@@ -1,60 +1,41 @@
 package com.testcontainers.demo.integration;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-
 import com.testcontainers.demo.ContainerConfig;
 import com.testcontainers.demo.entity.Application;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.specification.RequestSpecification;
-import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.Container;
-import org.testcontainers.containers.ExecInContainerPattern;
-import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.io.IOException;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /*
- * Test class using the approach of having a configuration class with the testcontainers configurations
+ * Test class using the approach of having a configuration class with the testcontainers configurations and running in sequence
  */
-@Execution(ExecutionMode.CONCURRENT)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {},
     classes = { ContainerConfig.class }
 )
-public class ServiceNowApplicationTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceNowApplicationTest.class);
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Execution(SAME_THREAD)
+public class ServiceNowApplicationSequenceTest {
 
     protected RequestSpecification requestSpecification;
 
     @LocalServerPort
     protected int localServerPort;
-
-    @Autowired
-    private PostgreSQLContainer postgresContainer;
-
-//    @Autowired
-//    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void setUpAbstractIntegrationTest() {
@@ -64,32 +45,10 @@ public class ServiceNowApplicationTest {
             .setPort(localServerPort)
             .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
-        // check why are 2 applications stuff there;
     }
-
-    @AfterAll
-    public static void tearDown() {
-        LOG.info("Test tearDown At: " + java.time.LocalDateTime.now());
-    }
-
-//    @AfterEach
-//    public void tearDown() {
-//        LOG.info("Cleaning up the database");
-//        ensureCleanDB();
-//    }
-
-    /*
-     * Ensure the database is clean before running the tests
-     */
-//    private void ensureCleanDB() throws IOException, InterruptedException {
-//        Container.ExecResult result = postgresContainer.execInContainer("psql", "-U", "test", "-d", "test", "-c", "TRUNCATE applications, release, ticket CASCADE;");
-//        LOG.info(result.getExitCode());
-//    }
-//    private void ensureCleanDB() {
-//        jdbcTemplate.execute("TRUNCATE applications, release, ticket CASCADE;");
-//    }
 
     @Test
+    @Order(1)
     public void addApplication() {
         given(requestSpecification)
             .body(new Application(null, "Test Application", "Kesha Williams", "A test application."))
@@ -100,9 +59,8 @@ public class ServiceNowApplicationTest {
     }
 
     @Test
+    @Order(2)
     public void findApplication() {
-        addApplication();
-
         given(requestSpecification)
             .when()
             .get("/snow/application/1")
@@ -114,8 +72,8 @@ public class ServiceNowApplicationTest {
     }
 
     @Test
+    @Order(3)
     public void updateApplication() {
-        addApplication();
         given(requestSpecification)
             .body(new Application(1, "Updated Application", "John Doe", "An updated application."))
             .when()
@@ -125,8 +83,8 @@ public class ServiceNowApplicationTest {
     }
 
     @Test
+    @Order(4)
     public void deleteApplication() {
-        findApplication();
         given(requestSpecification)
             .when()
             .delete("/snow/application/1")
