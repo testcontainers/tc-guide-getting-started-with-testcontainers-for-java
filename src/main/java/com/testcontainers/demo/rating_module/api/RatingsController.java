@@ -37,7 +37,7 @@ public class RatingsController {
     @PostMapping
     public ResponseEntity<Object> recordRating(@RequestBody Rating rating) throws Exception {
         if (!ratingsRepository.exists(rating.getTicketId())) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
 
         kafkaTemplate.send("ratings", rating).get();

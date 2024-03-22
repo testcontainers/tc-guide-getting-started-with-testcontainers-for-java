@@ -9,16 +9,25 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.specification.RequestSpecification;
+import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.testcontainers.containers.Container;
+import org.testcontainers.containers.ExecInContainerPattern;
+import org.testcontainers.containers.PostgreSQLContainer;
+
+import java.io.IOException;
 
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
@@ -36,6 +45,12 @@ public class ServiceNowApplicationTest {
     @LocalServerPort
     protected int localServerPort;
 
+    @Autowired
+    private PostgreSQLContainer postgresContainer;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     public void setUpAbstractIntegrationTest() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
@@ -44,6 +59,24 @@ public class ServiceNowApplicationTest {
             .setPort(localServerPort)
             .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
+        // check why are 2 applications stuff there;
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.out.println("Cleaning up the database");
+        ensureCleanDB();
+    }
+
+    /*
+     * Ensure the database is clean before running the tests
+     */
+//    private void ensureCleanDB() throws IOException, InterruptedException {
+//        Container.ExecResult result = postgresContainer.execInContainer("psql", "-U", "test", "-d", "test", "-c", "TRUNCATE applications, release, ticket CASCADE;");
+//        System.out.println(result.getExitCode());
+//    }
+    private void ensureCleanDB() {
+        jdbcTemplate.execute("TRUNCATE applications, release, ticket CASCADE;");
     }
 
     @Test
