@@ -1,5 +1,6 @@
 package com.testcontainers.demo.api;
 
+import com.testcontainers.demo.dto.ReleaseDTO;
 import com.testcontainers.demo.entity.Application;
 import com.testcontainers.demo.entity.Release;
 import com.testcontainers.demo.entity.Ticket;
@@ -85,13 +86,13 @@ public class ServiceNowController {
     @DeleteMapping("/ticket/{id}")
     public ResponseEntity<Void> deleteTicket(@PathVariable("id") Integer id) {
         ticketService.deleteTicket(id);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/ticket/{id}")
     public ResponseEntity<Ticket> closeTicket(@PathVariable("id") Integer id) {
         ticketService.closeTicket(id);
-        return new ResponseEntity<Ticket>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/release")
@@ -99,16 +100,24 @@ public class ServiceNowController {
         releaseService.addRelease(release);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/release").buildAndExpand(release.getId()).toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/release/{appid}/{releaseid}")
-    public ResponseEntity<Void> addApptoRelease(
+    public ResponseEntity<Void> addAppToRelease(
         @PathVariable("appid") Integer appid,
-        @PathVariable("releaseid") Integer releaseid,
-        UriComponentsBuilder builder
+        @PathVariable("releaseid") Integer releaseid
     ) {
         releaseService.addApplication(appid, releaseid);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/release/{releaseid}")
+    public ResponseEntity<ReleaseDTO> getReleaseById(@PathVariable("releaseid") Integer releaseid) {
+        ReleaseDTO release = releaseService.getReleaseById(releaseid);
+        if (release == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(release, HttpStatus.OK);
     }
 }

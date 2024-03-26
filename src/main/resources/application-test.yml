@@ -1,6 +1,6 @@
 management.endpoint.health.show-details: always
 gitClient:
-  url: http://github.com:8090
+  url: http://localhost:9091
 spring:
   kafka:
     listener:
