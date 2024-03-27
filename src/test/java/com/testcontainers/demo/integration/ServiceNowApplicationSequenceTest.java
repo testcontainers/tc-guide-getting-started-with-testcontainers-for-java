@@ -1,19 +1,13 @@
 package com.testcontainers.demo.integration;
 
-import com.testcontainers.demo.ContainerConfig;
+import com.testcontainers.demo.config.PgContainerConfig;
 import com.testcontainers.demo.entity.Application;
-import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.specification.RequestSpecification;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
@@ -23,41 +17,41 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations and running in sequence
  */
+@Execution(SAME_THREAD)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {},
-    classes = { ContainerConfig.class }
+    classes = { PgContainerConfig.class },
+    args = "--spring.profiles.active=test"
 )
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Execution(SAME_THREAD)
-public class ServiceNowApplicationSequenceTest {
-
-    protected RequestSpecification requestSpecification;
-
-    @LocalServerPort
-    protected int localServerPort;
+public class ServiceNowApplicationSequenceTest extends BaseRestAssuredIntegrationTest {
 
     @BeforeEach
-    public void setUpAbstractIntegrationTest() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        requestSpecification =
-        new RequestSpecBuilder()
-            .setPort(localServerPort)
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+    public void setUpIntegrationTest() {
+        this.setUpAbstractIntegrationTest();
     }
 
+    /**
+     * Test case to add an application.
+     * Sends a POST request with an application body and expects a status code of 201 or 409.
+     */
     @Test
     @Order(1)
     public void addApplication() {
         given(requestSpecification)
-            .body(new Application(null, "Test Application", "Kesha Williams", "A test application."))
+            .body(new Application(null, "Test Application Sequence", "Kate Williams", "A test application Sequence."))
             .when()
             .post("/snow/application")
             .then()
             .statusCode(oneOf(201, 409));
     }
 
+    /**
+     * Test case to verify the functionality of finding an application.
+     * Sends a GET request to find the added application in previous test.
+     * Expects the body of the response to match the added application.
+     */
     @Test
     @Order(2)
     public void findApplication() {
@@ -66,11 +60,16 @@ public class ServiceNowApplicationSequenceTest {
             .get("/snow/application/1")
             .then()
             .body("id", is(1))
-            .body("name", is("Test Application"))
-            .body("description", is("A test application."))
-            .body("owner", is("Kesha Williams"));
+            .body("name", is("Test Application Sequence"))
+            .body("description", is("A test application Sequence."))
+            .body("owner", is("Kate Williams"));
     }
 
+    /**
+     * Test case to update an application.
+     * Sends a PUT request with body containing an updated application information body.
+     * Expects a status code of 200.
+     */
     @Test
     @Order(3)
     public void updateApplication() {
@@ -82,6 +81,11 @@ public class ServiceNowApplicationSequenceTest {
             .statusCode(HttpStatus.OK.value());
     }
 
+    /**
+     * Test case to verify the deletion of an application.
+     * Sends a DELETE request to remove the added application from previous test.
+     * Expects a status code of 204.
+     */
     @Test
     @Order(4)
     public void deleteApplication() {

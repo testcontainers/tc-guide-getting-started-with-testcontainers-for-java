@@ -3,16 +3,11 @@ package com.testcontainers.demo.integration;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-import com.testcontainers.demo.ContainerConfig;
+import com.testcontainers.demo.config.ContainerConfig;
 import com.testcontainers.demo.entity.Application;
-import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.specification.RequestSpecification;
-import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -21,16 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.Container;
-import org.testcontainers.containers.ExecInContainerPattern;
 import org.testcontainers.containers.PostgreSQLContainer;
-
-import java.io.IOException;
 
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
@@ -41,14 +28,9 @@ import java.io.IOException;
     properties = {},
     classes = { ContainerConfig.class }
 )
-public class ServiceNowApplicationTest {
+public class ServiceNowApplicationTest extends BaseRestAssuredIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceNowApplicationTest.class);
-
-    protected RequestSpecification requestSpecification;
-
-    @LocalServerPort
-    protected int localServerPort;
 
     @Autowired
     private PostgreSQLContainer postgresContainer;
@@ -57,14 +39,8 @@ public class ServiceNowApplicationTest {
 //    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
-    public void setUpAbstractIntegrationTest() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        requestSpecification =
-        new RequestSpecBuilder()
-            .setPort(localServerPort)
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
-        // check why are 2 applications stuff there;
+    public void setUpIntegrationTest() {
+        this.setUpAbstractIntegrationTest();
     }
 
     @AfterAll
@@ -89,16 +65,25 @@ public class ServiceNowApplicationTest {
 //        jdbcTemplate.execute("TRUNCATE applications, release, ticket CASCADE;");
 //    }
 
+    /**
+     * Test case to add an application.
+     * Sends a POST request with an application body and expects a status code of 201 or 409.
+     */
     @Test
     public void addApplication() {
         given(requestSpecification)
-            .body(new Application(null, "Test Application", "Kesha Williams", "A test application."))
+            .body(new Application(null, "Test Application", "Kate Williams", "A test application."))
             .when()
             .post("/snow/application")
             .then()
             .statusCode(oneOf(201, 409));
     }
 
+    /**
+     * Test case to verify the functionality of finding an application.
+     * Adds an application and then sends a GET request to find it.
+     * Expects the body of the response to match the added application.
+     */
     @Test
     public void findApplication() {
         addApplication();
@@ -110,9 +95,14 @@ public class ServiceNowApplicationTest {
             .body("id", is(1))
             .body("name", is("Test Application"))
             .body("description", is("A test application."))
-            .body("owner", is("Kesha Williams"));
+            .body("owner", is("Kate Williams"));
     }
 
+    /**
+     * Test case to update an application.
+     * Adds an application and then sends a PUT request with an updated application body.
+     * Expects a status code of 200.
+     */
     @Test
     public void updateApplication() {
         addApplication();
@@ -124,6 +114,11 @@ public class ServiceNowApplicationTest {
             .statusCode(HttpStatus.OK.value());
     }
 
+    /**
+     * Test case to verify the deletion of an application.
+     * Finds an application and then sends a DELETE request to remove it.
+     * Expects a status code of 204.
+     */
     @Test
     public void deleteApplication() {
         findApplication();

@@ -7,13 +7,10 @@ import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
 
-import com.testcontainers.demo.ContainerConfig;
+import com.testcontainers.demo.config.ContainerConfig;
 import com.testcontainers.demo.rating_module.domain.Rating;
 import com.testcontainers.demo.util.KafkaRecordsReader;
-import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.specification.RequestSpecification;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.assertj.core.api.Assertions;
@@ -24,9 +21,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.util.List;
@@ -41,24 +35,14 @@ import java.util.Map;
     properties = {},
     classes = { ContainerConfig.class }
 )
-public class RatingsKafkaApplicationTest {
-
-    protected RequestSpecification requestSpecification;
+public class RatingsKafkaApplicationTest extends BaseRestAssuredIntegrationTest {
 
     @Autowired
     private KafkaContainer kafka;
 
-    @LocalServerPort
-    protected int localServerPort;
-
     @BeforeEach
-    public void setUpAbstractIntegrationTest() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        requestSpecification =
-            new RequestSpecBuilder()
-                .setPort(localServerPort)
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
+    public void setUpIntegrationTest() {
+        this.setUpAbstractIntegrationTest();
     }
 
     @Test
@@ -93,9 +77,10 @@ public class RatingsKafkaApplicationTest {
         System.out.println("Read : " + records.size() + " records" + records);
         assert records.size() == 1;
         Assertions.assertThat(records.size()).isNotZero();
+
         for (int i = 1; i <= 5; i++) {
             given(requestSpecification)
-                    .body(new Rating(ticketId, String.valueOf(i), i))
+                    .body(new Rating(ticketId,"Comment " +i, i))
                     .when()
                     .post("/ratings");
         }
@@ -114,7 +99,7 @@ public class RatingsKafkaApplicationTest {
     }
 
     /*
-     * This method reads the records from the topic "ratings" and returns them  as a list of ConsumerRecord
+     * Reads the records from the topic "ratings" and returns them  as a list of ConsumerRecord
      * @return a list of ConsumerRecord
      */
     @NotNull
@@ -153,7 +138,7 @@ public class RatingsKafkaApplicationTest {
     }
 
     @Test
-    public void testUnknownTalk() {
+    public void testUnknownTicket() {
         int ticketId = 6;
 
         given(requestSpecification)
