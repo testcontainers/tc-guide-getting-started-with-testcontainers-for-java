@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RatingsListener {
 
-    private final Logger log = LoggerFactory.getLogger(RatingsListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RatingsListener.class);
 
     private final RatingsRepository ratingsRepository;
 
@@ -21,8 +21,8 @@ public class RatingsListener {
 
     @KafkaListener(groupId = "ratings", topics = "ratings")
     public void handle(@Payload Rating rating) {
-        log.info("Received rating: {}", rating.toString());
+        LOG.info("Received rating: {}", rating.toString());
 
-        ratingsRepository.add(rating.getTicketId(), rating.getValue());
+        ratingsRepository.add(rating.getTicketId(), rating.getComment(), rating.getValue());
     }
 }

@@ -2,8 +2,8 @@ package com.testcontainers.demo.rating_module.api;
 
 import com.testcontainers.demo.rating_module.domain.Rating;
 import com.testcontainers.demo.rating_module.repository.RatingsRepository;
-import com.testcontainers.demo.service.TicketService;
-import java.util.Map;
+
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +45,7 @@ public class RatingsController {
     }
 
     @GetMapping
-    public Map<Integer, Integer> getRatings(@RequestParam String talkId) {
-        return ratingsRepository.findAllByTalkId(talkId);
+    public List<Rating> getRatings(@RequestParam Integer ticketId) {
+        return ratingsRepository.findAllByTicketId(ticketId);
     }
 }

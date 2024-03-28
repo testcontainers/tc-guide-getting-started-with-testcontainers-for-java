@@ -5,12 +5,13 @@ import static com.testcontainers.demo.util.KafkaRecordsReader.getOffsets;
 import static com.testcontainers.demo.util.KafkaRecordsReader.readRecords;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 import com.testcontainers.demo.config.ContainerConfig;
 import com.testcontainers.demo.rating_module.domain.Rating;
 import com.testcontainers.demo.util.KafkaRecordsReader;
 import io.restassured.filter.log.LogDetail;
+import io.restassured.response.ValidatableResponse;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.assertj.core.api.Assertions;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.testcontainers.containers.KafkaContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,9 +50,9 @@ public class RatingsKafkaApplicationTest extends BaseRestAssuredIntegrationTest 
     @Test
     public void testRatings() {
         int ticketId = 1;
-
+        String comment = "rating comment";
         given(requestSpecification)
-            .body(new Rating(ticketId,"rating comment", 5))
+            .body(new Rating(ticketId, comment, 5))
             .when()
             .post("/ratings")
             .then()
@@ -62,11 +64,11 @@ public class RatingsKafkaApplicationTest extends BaseRestAssuredIntegrationTest 
         await()
             .untilAsserted(() -> {
                 given(requestSpecification)
-                    .queryParam("talkId", ticketId)
+                    .queryParam("ticketId", ticketId)
                     .when()
                     .get("/ratings")
                     .then()
-                    .body("1", is(1))
+                    .body("size()", is(3))
                     .log()
                     .everything();
             });
@@ -78,23 +80,26 @@ public class RatingsKafkaApplicationTest extends BaseRestAssuredIntegrationTest 
         assert records.size() == 1;
         Assertions.assertThat(records.size()).isNotZero();
 
+        List<String> comments = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
+            comments.add(comment + i);
             given(requestSpecification)
-                    .body(new Rating(ticketId,"Comment " +i, i))
+                    .body(new Rating(ticketId,comment +i, i))
                     .when()
                     .post("/ratings");
         }
 
         await()
             .untilAsserted(() -> {
-                given(requestSpecification)
-                    .queryParam("talkId", ticketId)
+                ValidatableResponse validatableResponse = given(requestSpecification)
+                    .queryParam("ticketId", ticketId)
                     .when()
                     .get("/ratings")
-                    .then()
-                    .body("1", is(1))
-                    .log()
-                    .everything();
+                    .then();
+                validatableResponse.body("ticketId", everyItem(is(ticketId)));
+                for (int i = 0; i < 5; i++) {
+                    validatableResponse.body("comment", hasItem(comments.get(i)));
+                }
             });
     }
 

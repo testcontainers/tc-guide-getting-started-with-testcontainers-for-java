@@ -1,9 +1,11 @@
 package com.testcontainers.demo.rating_module.repository;
 
-import java.util.Map;
+import com.testcontainers.demo.rating_module.domain.Rating;
+
+import java.util.List;
 
 public interface IRatingsRepository {
-    Map<Integer, Integer> findAllByTalkId(String talkId);
+    List<Rating> findAllByTicketId(Integer ticketId);
 
-    void add(Integer ticketId, int value);
+    void add(Integer ticketId, String comment, int value);
 }
