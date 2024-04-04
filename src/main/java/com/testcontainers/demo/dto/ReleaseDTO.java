@@ -1,7 +1,7 @@
 package com.testcontainers.demo.dto;
 
 import com.testcontainers.demo.entity.Application;
-import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.entity.SoftwareRelease;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,11 +29,11 @@ public class ReleaseDTO {
         this.applications = applications;
     }
 
-    public ReleaseDTO(Release release) {
-        this.id = release.getId();
-        this.releaseDate = release.getReleaseDate();
-        this.description = release.getDescription();
-        this.applications = release.getApplications();
+    public ReleaseDTO(SoftwareRelease softwareRelease) {
+        this.id = softwareRelease.getId();
+        this.releaseDate = softwareRelease.getReleaseDate();
+        this.description = softwareRelease.getDescription();
+        this.applications = softwareRelease.getApplications();
     }
 
     public Integer getId() {

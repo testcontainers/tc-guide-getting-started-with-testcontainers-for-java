@@ -1,10 +1,10 @@
 package com.testcontainers.demo.service;
 
 import com.testcontainers.demo.dto.ReleaseDTO;
-import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.entity.SoftwareRelease;
 
-public interface IReleaseService {
-    Integer addRelease(Release release);
+public interface ISoftwareReleaseService {
+    Integer addRelease(SoftwareRelease softwareRelease);
     void addApplication(Integer appId, Integer releaseId);
 
     /**

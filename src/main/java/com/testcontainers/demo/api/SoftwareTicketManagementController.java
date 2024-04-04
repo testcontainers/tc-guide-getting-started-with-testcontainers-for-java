@@ -2,10 +2,10 @@ package com.testcontainers.demo.api;
 
 import com.testcontainers.demo.dto.ReleaseDTO;
 import com.testcontainers.demo.entity.Application;
-import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.entity.SoftwareRelease;
 import com.testcontainers.demo.entity.Ticket;
 import com.testcontainers.demo.service.IApplicationService;
-import com.testcontainers.demo.service.IReleaseService;
+import com.testcontainers.demo.service.ISoftwareReleaseService;
 import com.testcontainers.demo.service.ITicketService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api")
-public class ReleaseTicketManagementController {
+public class SoftwareTicketManagementController {
 
     @Autowired
     private IApplicationService applicationService;
@@ -26,7 +26,7 @@ public class ReleaseTicketManagementController {
     private ITicketService ticketService;
 
     @Autowired
-    private IReleaseService releaseService;
+    private ISoftwareReleaseService releaseService;
 
     @PostMapping("/application")
     public ResponseEntity<Application> addApplication(@RequestBody Application application, UriComponentsBuilder builder) {
@@ -42,6 +42,9 @@ public class ReleaseTicketManagementController {
     @GetMapping("/application/{id}")
     public ResponseEntity<Application> getApplicationById(@PathVariable("id") Integer id) {
         Application app = applicationService.getApplicationById(id);
+        if (app == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(app, HttpStatus.OK);
     }
 
@@ -104,15 +107,15 @@ public class ReleaseTicketManagementController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/release")
-    public ResponseEntity<Void> addRelease(@RequestBody Release release, UriComponentsBuilder builder) {
-        releaseService.addRelease(release);
+    @PostMapping("/softwareRelease")
+    public ResponseEntity<Void> addRelease(@RequestBody SoftwareRelease softwareRelease, UriComponentsBuilder builder) {
+        releaseService.addRelease(softwareRelease);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(builder.path("/release/{id}").buildAndExpand(release.getId()).toUri());
+        headers.setLocation(builder.path("/softwareRelease/{id}").buildAndExpand(softwareRelease.getId()).toUri());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @PutMapping("/release/{appid}/{releaseid}")
+    @PutMapping("/softwareRelease/{appid}/{releaseid}")
     public ResponseEntity<Void> addAppToRelease(
         @PathVariable("appid") Integer appid,
         @PathVariable("releaseid") Integer releaseid
@@ -121,7 +124,7 @@ public class ReleaseTicketManagementController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/release/{releaseid}")
+    @GetMapping("/softwareRelease/{releaseid}")
     public ResponseEntity<ReleaseDTO> getReleaseById(@PathVariable("releaseid") Integer releaseid) {
         ReleaseDTO release = releaseService.getReleaseById(releaseid);
         if (release == null) {

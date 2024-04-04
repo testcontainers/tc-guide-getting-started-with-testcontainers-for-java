@@ -3,9 +3,9 @@ package com.testcontainers.demo.integration;
 import com.testcontainers.demo.config.BaseRestAssuredIntegrationTest;
 import com.testcontainers.demo.config.PgContainerConfig;
 import com.testcontainers.demo.entity.Application;
-import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.entity.SoftwareRelease;
 import com.testcontainers.demo.service.ApplicationService;
-import com.testcontainers.demo.service.ReleaseService;
+import com.testcontainers.demo.service.SoftwareReleaseService;
 import io.restassured.response.ValidatableResponse;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.*;
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
  */
-// Rename release to version;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
@@ -39,14 +38,14 @@ import static org.hamcrest.Matchers.*;
     },
     classes = {PgContainerConfig.class}
 )
-public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
+public class ApiSoftwareReleaseTest extends BaseRestAssuredIntegrationTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApiReleaseTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApiSoftwareReleaseTest.class);
 
     public static MockWebServer gitClientMockWebServer;
 
     @Autowired
-    private ReleaseService releaseService;
+    private SoftwareReleaseService softwareReleaseService;
 
     @Autowired
     private ApplicationService applicationService;
@@ -94,10 +93,10 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
         ValidatableResponse validatableResponse = given(requestSpecification)
             .body("{\"releaseDate\":\"2021-12-31\",\"description\":\"A test release\"}")
             .when()
-            .post("/api/release")
+            .post("/api/softwareRelease")
             .then()
             .statusCode(201)
-            .header("Location",  matchesPattern(".*/release/\\d+"));
+            .header("Location",  matchesPattern(".*/softwareRelease/\\d+"));
 
     }
 
@@ -106,10 +105,10 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
         ValidatableResponse validatableResponse = given(requestSpecification)
             .body("{\"releaseDate\":\"2021-12-31\",\"description\":\"A test release\",\"applications\": [{\"name\": \"New App1\", \"description\": \"App added with release\", \"owner\": \"Jane Doe\"},{\"name\": \"New App2\", \"description\": \"Another app added with release\", \"owner\": \"Jane Doe\"}]}")
             .when()
-            .post("/api/release")
+            .post("/api/softwareRelease")
             .then()
             .statusCode(201)
-            .header("Location",  matchesPattern(".*/release/\\d+"));
+            .header("Location",  matchesPattern(".*/softwareRelease/\\d+"));
     }
 
     /**
@@ -122,12 +121,12 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
         // create an application
         Integer appId = applicationService.addApplication(new Application(null, "Test_V1", "Kesha Williams", "A test application.")).getId();
         // create a release
-        Integer releaseId = releaseService.addRelease(new Release(null, LocalDate.of(2025, 12, 31), "A test release", null));
+        Integer releaseId = softwareReleaseService.addRelease(new SoftwareRelease(null, LocalDate.of(2025, 12, 31), "A test release", null));
 
         // link application to release
         given(requestSpecification)
             .when()
-            .put("/api/release/{appId}/{rId}", appId, releaseId)
+            .put("/api/softwareRelease/{appId}/{rId}", appId, releaseId)
             .then()
             .statusCode(200);
 
@@ -135,7 +134,7 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
 
         given(requestSpecification)
             .when()
-            .get("/api/release/{releaseId}", releaseId)
+            .get("/api/softwareRelease/{releaseId}", releaseId)
             .then()
             .assertThat()
             .statusCode(200)
@@ -147,10 +146,10 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
     @Test
     public void findReleaseWithIncompleteData() {
          // create a release
-        Integer releaseId = releaseService.addRelease(new Release(null, LocalDate.of(2021, 12, 31), "A test release", null));
+        Integer releaseId = softwareReleaseService.addRelease(new SoftwareRelease(null, LocalDate.of(2021, 12, 31), "A test release", null));
         given(requestSpecification)
             .when()
-            .get("/api/release/{releaseId}", releaseId)
+            .get("/api/softwareRelease/{releaseId}", releaseId)
             .then()
             .assertThat()
             .statusCode(200)

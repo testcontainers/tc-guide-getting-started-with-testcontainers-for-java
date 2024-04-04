@@ -22,7 +22,7 @@ public class Ticket {
         joinColumns = @JoinColumn(name = "ticket_fk"),
         inverseJoinColumns = @JoinColumn(name = "release_fk")
     )
-    private Release release;
+    private SoftwareRelease softwareRelease;
 
     private String status;
 
@@ -33,14 +33,14 @@ public class Ticket {
         String title,
         String description,
         Application application,
-        Release release,
+        SoftwareRelease softwareRelease,
         String status
     ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.application = application;
-        this.release = release;
+        this.softwareRelease = softwareRelease;
         this.status = status;
     }
 
@@ -84,11 +84,11 @@ public class Ticket {
         this.application = application;
     }
 
-    public Release getRelease() {
-        return release;
+    public SoftwareRelease getRelease() {
+        return softwareRelease;
     }
 
-    public void setRelease(Release release) {
-        this.release = release;
+    public void setRelease(SoftwareRelease softwareRelease) {
+        this.softwareRelease = softwareRelease;
     }
 }

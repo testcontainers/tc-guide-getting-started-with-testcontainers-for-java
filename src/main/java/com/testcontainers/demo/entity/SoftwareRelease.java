@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Release {
+public class SoftwareRelease {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +26,7 @@ public class Release {
     /**
      * Default constructor for the Release class.
      */
-    public Release() {}
+    public SoftwareRelease() {}
 
     /**
      * Constructor for the Release class.
@@ -36,7 +36,7 @@ public class Release {
      * @param description  the description of the release
      * @param applications the list of applications associated with the release
      */
-    public Release(Integer id, LocalDate releaseDate, String description, List<Application> applications) {
+    public SoftwareRelease(Integer id, LocalDate releaseDate, String description, List<Application> applications) {
         this.id = id;
         this.releaseDate = releaseDate;
         this.description = description;

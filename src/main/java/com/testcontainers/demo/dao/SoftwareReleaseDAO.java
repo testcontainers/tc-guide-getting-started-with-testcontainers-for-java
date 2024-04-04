@@ -1,7 +1,7 @@
 package com.testcontainers.demo.dao;
 
 import com.testcontainers.demo.entity.Application;
-import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.entity.SoftwareRelease;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Transactional
 @Repository
-public class ReleaseDAO implements IReleaseDAO {
+public class SoftwareReleaseDAO implements ISoftwareReleaseDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -19,20 +19,20 @@ public class ReleaseDAO implements IReleaseDAO {
     private IApplicationDAO applicationDAO;
 
     @Override
-    public void addRelease(Release release) {
-        entityManager.persist(release);
+    public void addRelease(SoftwareRelease softwareRelease) {
+        entityManager.persist(softwareRelease);
     }
 
     @Override
     public void addApplication(Integer appId, Integer releaseId) {
-        Release release = getReleaseById(releaseId);
+        SoftwareRelease softwareRelease = getReleaseById(releaseId);
         Application application = applicationDAO.getApplicationById(appId);
-        release.addApplication(application);
+        softwareRelease.addApplication(application);
         entityManager.flush();
     }
 
     @Override
-    public Release getReleaseById(int releaseId) {
-        return entityManager.find(Release.class, releaseId);
+    public SoftwareRelease getReleaseById(int releaseId) {
+        return entityManager.find(SoftwareRelease.class, releaseId);
     }
 }
