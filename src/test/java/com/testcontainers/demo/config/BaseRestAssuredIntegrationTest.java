@@ -1,4 +1,4 @@
-package com.testcontainers.demo.integration;
+package com.testcontainers.demo.config;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;

@@ -23,6 +23,6 @@ public class RatingsListener {
     public void handle(@Payload Rating rating) {
         LOG.info("Received rating: {}", rating.toString());
 
-        ratingsRepository.add(rating.getTicketId(), rating.getComment(), rating.getValue());
+        ratingsRepository.add(rating.getTicketId(), rating.getComment(), rating.getStars());
     }
 }

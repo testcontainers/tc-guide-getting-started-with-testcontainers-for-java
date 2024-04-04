@@ -4,7 +4,7 @@ import com.testcontainers.demo.dto.ReleaseDTO;
 import com.testcontainers.demo.entity.Release;
 
 public interface IReleaseService {
-    void addRelease(Release release);
+    Integer addRelease(Release release);
     void addApplication(Integer appId, Integer releaseId);
 
     /**

@@ -8,22 +8,22 @@ public class Rating implements Serializable {
 
     String comment;
 
-    int value;
+    int stars;
 
     public Rating() {}
 
-    public Rating(Integer ticketId, String comment, int value) {
+    public Rating(Integer ticketId, String comment, int stars) {
         this.ticketId = ticketId;
         this.comment = comment;
-        this.value = value;
+        this.stars = stars;
     }
 
     public Integer getTicketId() {
         return ticketId;
     }
 
-    public int getValue() {
-        return value;
+    public int getStars() {
+        return stars;
     }
 
     public String getComment() {
@@ -39,7 +39,7 @@ public class Rating implements Serializable {
         return "Rating{" +
                 "ticketId=" + ticketId +
                 ", comment='" + comment + '\'' +
-                ", value=" + value +
+                ", stars=" + stars +
                 '}';
     }
 }

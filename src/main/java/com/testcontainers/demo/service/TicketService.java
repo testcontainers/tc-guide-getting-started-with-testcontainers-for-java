@@ -40,21 +40,21 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public void closeTicket(Integer ticketId) {
-        ticketDAO.closeTicket(ticketId);
+    public void resolveTicket(Integer ticketId) {
+        ticketDAO.resolve(ticketId);
     }
 
     /**
-     * Check if the ticket is closed
+     * Check if the ticket is resolved
      *
      * @param ticketId the ticket id
-     * @return true if the ticket is closed, false otherwise
+     * @return true if the ticket is resolved, false otherwise
      */
     @Override
-    public boolean isTicketClosed(Integer ticketId) {
+    public boolean isTicketResolved(Integer ticketId) {
         Ticket ticket = ticketDAO.getTicketById(ticketId);
         if (ticket != null) {
-            return "Resolved".equals(ticket.getStatus());
+            return "RESOLVED".equals(ticket.getStatus());
         }
         return false;
     }

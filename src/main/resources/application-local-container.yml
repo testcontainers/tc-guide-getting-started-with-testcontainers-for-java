@@ -1,0 +1,22 @@
+management.endpoint.health.show-details: always
+gitClient:
+  url: http://localhost:9091
+spring:
+  kafka:
+    listener:
+      missingTopicsFatal: false
+    consumer:
+      properties.spring.json.trusted.packages: com.testcontainers.demo.rating_module.domain
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  jpa:
+    hibernate:
+      ddlAuto: create-drop
+  output:
+    ansi:
+      enabled: always
+  sql:
+    init:
+      mode: never

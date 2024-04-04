@@ -7,24 +7,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ApplicationService implements IApplicationService {
 
-    Logger LOG = LoggerFactory.getLogger(ApplicationService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationService.class);
 
     @Autowired
     private IApplicationDAO applicationDAO;
 
     @Override
-    public synchronized boolean addApplication(Application application) {
+    public synchronized Application addApplication(Application application) {
         if (applicationDAO.applicationExists(application.getName(), application.getOwner())) {
             LOG.info("Application <{}> already exists", application.getName());
-            return false;
         } else {
             applicationDAO.addApplication(application);
             LOG.info("Application <{}> added", application.getName());
-            return true;
         }
+        return application;
     }
 
     @Override
@@ -40,5 +41,10 @@ public class ApplicationService implements IApplicationService {
     @Override
     public void deleteApplication(int applicationId) {
         applicationDAO.deleteApplication(applicationId);
+    }
+
+    @Override
+    public List<Application> getAllApplications() {
+        return applicationDAO.getAll();
     }
 }

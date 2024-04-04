@@ -19,14 +19,14 @@ public class RatingsRepository implements IRatingsRepository {
     public List<Rating> findAllByTicketId(Integer ticketId) {
         return jdbcTemplate.query(
             "SELECT * FROM ratings WHERE ticketId = ?",
-            (row, i) -> new Rating(row.getInt("ticketId"), row.getString("comment"), row.getInt("value")),
+            (row, i) -> new Rating(row.getInt("ticketId"), row.getString("comment"), row.getInt("stars")),
             ticketId
         );
     }
 
     @Override
-    public void add(Integer ticketId, String comment, int value) {
-        jdbcTemplate.update("INSERT INTO ratings (ticketId, comment, value) VALUES (?, ?, ?)", ticketId, comment, value);
+    public void add(Integer ticketId, String comment, int stars) {
+        jdbcTemplate.update("INSERT INTO ratings (ticketId, comment, stars) VALUES (?, ?, ?)", ticketId, comment, stars);
     }
 
     public Boolean exists(Integer ticketId) {

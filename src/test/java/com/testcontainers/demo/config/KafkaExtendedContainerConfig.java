@@ -10,15 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
-public class ContainerConfig extends PgContainerConfig {
+public class KafkaExtendedContainerConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContainerConfig.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(KafkaExtendedContainerConfig.class.getName());
 
     @Bean
     @ServiceConnection

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/snow")
-public class ServiceNowController {
+@RequestMapping("/api")
+public class ReleaseTicketManagementController {
 
     @Autowired
     private IApplicationService applicationService;
@@ -29,14 +29,14 @@ public class ServiceNowController {
     private IReleaseService releaseService;
 
     @PostMapping("/application")
-    public ResponseEntity<Void> addApplication(@RequestBody Application application, UriComponentsBuilder builder) {
-        boolean flag = applicationService.addApplication(application);
-        if (!flag) {
+    public ResponseEntity<Application> addApplication(@RequestBody Application application, UriComponentsBuilder builder) {
+        application = applicationService.addApplication(application);
+        if (application.getId() == null) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(builder.path("/application/{id}").buildAndExpand(application.getId()).toUri());
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(application, headers, HttpStatus.CREATED);
     }
 
     @GetMapping("/application/{id}")
@@ -49,6 +49,15 @@ public class ServiceNowController {
     public ResponseEntity<Application> updateApplication(@RequestBody Application application) {
         applicationService.updateApplication(application);
         return new ResponseEntity<>(application, HttpStatus.OK);
+    }
+
+    @GetMapping("/applications")
+    public ResponseEntity<List<Application>> getApplications() {
+        List<Application> app = applicationService.getAllApplications();
+        if (app == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(app, HttpStatus.OK);
     }
 
     @DeleteMapping("/application/{id}")
@@ -89,9 +98,9 @@ public class ServiceNowController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/ticket/{id}")
-    public ResponseEntity<Ticket> closeTicket(@PathVariable("id") Integer id) {
-        ticketService.closeTicket(id);
+    @PutMapping("/ticket/resolve/{id}")
+    public ResponseEntity<Ticket> resolveTicket(@PathVariable("id") Integer id) {
+        ticketService.resolveTicket(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -99,7 +108,7 @@ public class ServiceNowController {
     public ResponseEntity<Void> addRelease(@RequestBody Release release, UriComponentsBuilder builder) {
         releaseService.addRelease(release);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(builder.path("/release").buildAndExpand(release.getId()).toUri());
+        headers.setLocation(builder.path("/release/{id}").buildAndExpand(release.getId()).toUri());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 

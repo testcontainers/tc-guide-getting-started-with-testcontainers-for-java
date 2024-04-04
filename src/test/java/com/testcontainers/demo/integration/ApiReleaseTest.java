@@ -1,29 +1,37 @@
 package com.testcontainers.demo.integration;
 
+import com.testcontainers.demo.config.BaseRestAssuredIntegrationTest;
 import com.testcontainers.demo.config.PgContainerConfig;
 import com.testcontainers.demo.entity.Application;
+import com.testcontainers.demo.entity.Release;
+import com.testcontainers.demo.service.ApplicationService;
+import com.testcontainers.demo.service.ReleaseService;
+import io.restassured.response.ValidatableResponse;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.assertj.core.api.Assertions;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
+import static io.restassured.RestAssured.delete;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
  */
-@Execution(ExecutionMode.SAME_THREAD)
+// Rename release to version;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
@@ -35,30 +43,34 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiReleaseTest.class);
 
-    private static final String RELEASE_TAG = "v1.1.2024";
-
     public static MockWebServer gitClientMockWebServer;
 
+    @Autowired
+    private ReleaseService releaseService;
+
+    @Autowired
+    private ApplicationService applicationService;
+
     /*
-     * This is a dispatcher can be be used to mock the GitClient service by using the query parameters
+     * Dispatcher can be used to mock the GitClient service responses by using the query parameters
      */
-//    final static Dispatcher dispatcher = new Dispatcher() {
-//
-//        @NotNull
-//        @Override
-//        public MockResponse dispatch(RecordedRequest request) {
-//            assert request.getRequestUrl() != null;
-//            String releaseDate = request.getRequestUrl().queryParameter("releaseDate");
-//            LOG.info("Request Path: " + request.getRequestUrl().queryParameter("applicationId"));
-//            String applicationId = request.getRequestUrl().queryParameter("applicationId");
-//            if (releaseDate != null && applicationId != null) {
-//                if (releaseDate.equals("2021-12-31") && applicationId.equals("1")) {
-//                    return new MockResponse().setResponseCode(200).setBody(RELEASE_TAG);
-//                }
-//            }
-//            return new MockResponse().setResponseCode(404);
-//        }
-//    };
+    final static Dispatcher dispatcher = new Dispatcher() {
+
+        @NotNull
+        @Override
+        public MockResponse dispatch(RecordedRequest request) {
+            assert request.getRequestUrl() != null;
+            String releaseDate = request.getRequestUrl().queryParameter("releaseDate");
+            String applicationName = request.getRequestUrl().queryParameter("applications");
+
+            if (releaseDate != null && applicationName != null) {
+                if (releaseDate.equals("2025-12-31") && applicationName.contains("Test_V1")) {
+                    return new MockResponse().setResponseCode(200).setBody("v1.1.2024");
+                }
+            }
+            return new MockResponse().setResponseCode(404);
+        }
+    };
 
     @BeforeEach
     public void setUpIntegrationTest() {
@@ -68,7 +80,7 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
     @BeforeAll
     static void setUp() throws IOException {
         gitClientMockWebServer = new MockWebServer();
-//        gitClientMockWebServer.setDispatcher(dispatcher);
+        gitClientMockWebServer.setDispatcher(dispatcher);
         gitClientMockWebServer.start(9091);
     }
 
@@ -79,48 +91,76 @@ public class ApiReleaseTest extends BaseRestAssuredIntegrationTest {
 
     @Test
     public void addRelease() {
-        given(requestSpecification)
+        ValidatableResponse validatableResponse = given(requestSpecification)
             .body("{\"releaseDate\":\"2021-12-31\",\"description\":\"A test release\"}")
             .when()
-            .post("/snow/release")
+            .post("/api/release")
             .then()
-            .statusCode(201);
+            .statusCode(201)
+            .header("Location",  matchesPattern(".*/release/\\d+"));
+
     }
 
     @Test
-    public void findReleaseWithTags() {
-        given(requestSpecification)
-            .body("{\"releaseDate\":\"2021-12-31\",\"description\":\"A test release\"}")
+    public void addReleaseWithApps() {
+        ValidatableResponse validatableResponse = given(requestSpecification)
+            .body("{\"releaseDate\":\"2021-12-31\",\"description\":\"A test release\",\"applications\": [{\"name\": \"New App1\", \"description\": \"App added with release\", \"owner\": \"Jane Doe\"},{\"name\": \"New App2\", \"description\": \"Another app added with release\", \"owner\": \"Jane Doe\"}]}")
             .when()
-            .post("/snow/release");
-        given(requestSpecification)
-            .body(new Application(null, "Test Application", "Kesha Williams", "A test application."))
-            .when()
-            .post("/snow/application");
+            .post("/api/release")
+            .then()
+            .statusCode(201)
+            .header("Location",  matchesPattern(".*/release/\\d+"));
+    }
 
+    /**
+     * Test case to find a release by id.
+     * Sends a GET request to find the added release in the previous test.
+     * Expects the body of the response to match the added release.
+     */
+    @Test
+    public void findReleaseWithTagsFromGit() {
+        // create an application
+        Integer appId = applicationService.addApplication(new Application(null, "Test_V1", "Kesha Williams", "A test application.")).getId();
+        // create a release
+        Integer releaseId = releaseService.addRelease(new Release(null, LocalDate.of(2025, 12, 31), "A test release", null));
+
+        // link application to release
         given(requestSpecification)
             .when()
-            .put("/snow/release/1/1")
+            .put("/api/release/{appId}/{rId}", appId, releaseId)
             .then()
             .statusCode(200);
 
-        gitClientMockWebServer.enqueue(new MockResponse().setBody(RELEASE_TAG));
+//        gitClientMockWebServer.enqueue(new MockResponse().setBody(RELEASE_TAG)); //TODO add URL to work in parallel and to assure that this URL will be called by the test;
 
         given(requestSpecification)
             .when()
-            .get("/snow/release/1")
+            .get("/api/release/{releaseId}", releaseId)
             .then()
             .assertThat()
             .statusCode(200)
             .body("description", is("A test release"))
-            .body("gitTags", contains(RELEASE_TAG));
+            .body("releaseDate", is("2025-12-31"))
+            .body("gitTags", contains("v1.1.2024"));
     }
 
     @Test
-    public void contextLoads() {
-        Assertions.assertThat(localServerPort).isNotZero();
+    public void findReleaseWithIncompleteData() {
+         // create a release
+        Integer releaseId = releaseService.addRelease(new Release(null, LocalDate.of(2021, 12, 31), "A test release", null));
+        given(requestSpecification)
+            .when()
+            .get("/api/release/{releaseId}", releaseId)
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body("description", is("A test release"))
+            .body("gitTags", empty());
     }
 
+    /**
+     * Check the health of the application instance that was started using the testcontainers configuration for the API case
+     */
     @Test
     public void healthy() {
         given(requestSpecification)

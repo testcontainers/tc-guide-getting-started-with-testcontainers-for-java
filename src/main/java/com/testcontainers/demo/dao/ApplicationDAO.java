@@ -3,7 +3,9 @@ package com.testcontainers.demo.dao;
 import com.testcontainers.demo.entity.Application;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
 import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +18,6 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public void addApplication(Application application) {
-        entityManager.merge(application); // Merge the detached entity before persisting
         entityManager.persist(application);
     }
 
@@ -47,6 +48,15 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public void deleteApplication(int applicationId) {
-        entityManager.remove(getApplicationById(applicationId));
+        Application application = getApplicationById(applicationId);
+        if (application != null) {
+            entityManager.remove(getApplicationById(applicationId));
+        }
+    }
+
+    @Override
+    public List<Application> getAll() {
+        String query = "select a from Application a order by a.id";
+        return (List<Application>) entityManager.createQuery(query).getResultList();
     }
 }

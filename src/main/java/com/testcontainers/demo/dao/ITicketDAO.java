@@ -9,5 +9,5 @@ public interface ITicketDAO {
     Ticket getTicketById(int ticketId);
     void updateTicket(Ticket ticket);
     void deleteTicket(int ticketId);
-    void closeTicket(int ticketId);
+    void resolve(int ticketId);
 }

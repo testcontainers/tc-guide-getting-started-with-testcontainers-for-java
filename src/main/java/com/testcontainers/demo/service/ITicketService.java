@@ -9,6 +9,6 @@ public interface ITicketService {
     void addTicket(Ticket ticket);
     void updateTicket(Ticket ticket);
     void deleteTicket(Integer ticketId);
-    void closeTicket(Integer ticketId);
-    boolean isTicketClosed(Integer ticketId);
+    void resolveTicket(Integer ticketId);
+    boolean isTicketResolved(Integer ticketId);
 }

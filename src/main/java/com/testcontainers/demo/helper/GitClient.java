@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 @Component
 public class GitClient {
@@ -31,9 +32,14 @@ public class GitClient {
         try {
             StringBuilder urlBuilder = new StringBuilder(gitUrl + GIT_URL_PATH);
             urlBuilder.append("?releaseDate=").append(releaseDate);
-            for (Application application : applications) {
-                urlBuilder.append("&applicationId=").append(application.getId());
-            }
+            urlBuilder.append("&applications=[");
+            urlBuilder.append(
+                applications.stream()
+                    .map(
+                        application ->
+                            application.getName().replace(" ","_"))
+                    .collect(Collectors.joining(",")));
+            urlBuilder.append("]");
             
             URL url = new URL(urlBuilder.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

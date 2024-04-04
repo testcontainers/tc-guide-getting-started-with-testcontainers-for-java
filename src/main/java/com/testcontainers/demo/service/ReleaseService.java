@@ -21,8 +21,9 @@ public class ReleaseService implements IReleaseService {
     private GitClient gitClient;
 
     @Override
-    public void addRelease(Release release) {
+    public Integer addRelease(Release release) {
         releaseDAO.addRelease(release);
+        return release.getId();
     }
 
     @Override
