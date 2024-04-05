@@ -1,10 +1,9 @@
 # Getting started with Testcontainers for Java
 
-This is sample code for [Getting started with Testcontainers for Java](https://testcontainers.com/guides/getting-started-with-testcontainers-for-java) guide.
+This is sample code build on the  [Getting started with Testcontainers for Java](https://testcontainers.com/guides/getting-started-with-testcontainers-for-java) guide.
 
 ## 1. Setup Environment
-Make sure you have Java 8+ and a [compatible Docker environment](https://www.testcontainers.org/supported_docker_environment/) installed.
-If you are going to use Maven build tool then make sure Java 17+ is installed.
+Make sure you have Java 17+ and a [compatible Docker environment](https://www.testcontainers.org/supported_docker_environment/) installed.
 
 For example:
 
@@ -27,11 +26,6 @@ Server: Docker Desktop 4.12.0 (85629)
 
 * Clone the repository
 
-```shell
-git clone https://github.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-java.git
-cd tc-guide-getting-started-with-testcontainers-for-java
-```
-
 * Open the **tc-guide-getting-started-with-testcontainers-for-java** project in your favorite IDE.
 
 ## 3. Run Tests
@@ -39,8 +33,7 @@ cd tc-guide-getting-started-with-testcontainers-for-java
 Run the command to run the tests.
 
 ```shell
-$ ./gradlew test //for Gradle
-$ ./mvnw verify  //for Maven
+$ ./mvnw verify
 ```
 
 The tests should pass.
