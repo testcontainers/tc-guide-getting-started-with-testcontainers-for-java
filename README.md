@@ -26,7 +26,7 @@ Server: Docker Desktop 4.12.0 (85629)
 
 * Clone the repository
 
-* Open the **tc-guide-getting-started-with-testcontainers-for-java** project in your favorite IDE.
+* Open the **testcontainers-for-java** project in your favorite IDE.
 
 ## 3. Run Tests
 
