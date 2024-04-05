@@ -30,7 +30,9 @@ import java.util.concurrent.TimeUnit;
 @Execution(ExecutionMode.CONCURRENT)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {},
+    properties = {
+        "spring.profiles.active=test"
+    },
     classes = {PgContainerConfig.class}
 )
 public class DBApplicationTest extends BaseRestAssuredIntegrationTest {
@@ -59,23 +61,6 @@ public class DBApplicationTest extends BaseRestAssuredIntegrationTest {
         float time = (float) watch.getTime(TimeUnit.MILLISECONDS);
         LOG.info("Test tearDown At: {}, duration: {}", java.time.LocalDateTime.now(), time / 1000);
     }
-
-//    @AfterEach
-//    public void tearDown() {
-//        LOG.info("Cleaning up the database");
-//        ensureCleanDB();
-//    }
-
-    /*
-     * Ensure the database is clean before running the tests
-     */
-//    private void ensureCleanDB() throws IOException, InterruptedException {
-//        Container.ExecResult result = postgresContainer.execInContainer("psql", "-U", "test", "-d", "test", "-c", "TRUNCATE applications, release, ticket CASCADE;");
-//        LOG.info(result.getExitCode());
-//    }
-//    private void ensureCleanDB() {
-//        jdbcTemplate.execute("TRUNCATE applications, release, ticket CASCADE;");
-//    }
 
     /**
      * Test case to add an application.

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import static org.hamcrest.Matchers.*;
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
  */
+@Execution(ExecutionMode.CONCURRENT)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
@@ -64,7 +67,10 @@ public class ApiSoftwareReleaseTest extends BaseRestAssuredIntegrationTest {
 
             if (releaseDate != null && applicationName != null) {
                 if (releaseDate.equals("2025-12-31") && applicationName.contains("Test_V1")) {
-                    return new MockResponse().setResponseCode(200).setBody("v1.1.2024");
+                    return new MockResponse().setResponseCode(200).setBody("v1.1.2025");
+                }
+                if (releaseDate.equals("2026-12-31") && applicationName.contains("Test_V2")) {
+                    return new MockResponse().setResponseCode(200).setBody("v2.1.2026");
                 }
             }
             return new MockResponse().setResponseCode(404);
@@ -113,8 +119,8 @@ public class ApiSoftwareReleaseTest extends BaseRestAssuredIntegrationTest {
 
     /**
      * Test case to find a release by id.
-     * Sends a GET request to find the added release in the previous test.
-     * Expects the body of the response to match the added release.
+     * Sends a GET request to find the added release in test seed.
+     * Expects the body of the response to match the added release and contain the git Tag from the mock client.
      */
     @Test
     public void findReleaseWithTagsFromGit() {
@@ -131,6 +137,7 @@ public class ApiSoftwareReleaseTest extends BaseRestAssuredIntegrationTest {
             .statusCode(200);
 
 //        gitClientMockWebServer.enqueue(new MockResponse().setBody(RELEASE_TAG)); //TODO add URL to work in parallel and to assure that this URL will be called by the test;
+        // did not find a solution
 
         given(requestSpecification)
             .when()
@@ -140,7 +147,32 @@ public class ApiSoftwareReleaseTest extends BaseRestAssuredIntegrationTest {
             .statusCode(200)
             .body("description", is("A test release"))
             .body("releaseDate", is("2025-12-31"))
-            .body("gitTags", contains("v1.1.2024"));
+            .body("gitTags", contains("v1.1.2025"));
+    }
+
+    @Test
+    public void findRelease2WithTagsFromGit() {
+        // create an application
+        Integer appId = applicationService.addApplication(new Application(null, "Test_V2", "Kesha Williams", "A test application.")).getId();
+        // create a release
+        Integer releaseId = softwareReleaseService.addRelease(new SoftwareRelease(null, LocalDate.of(2026, 12, 31), "Test V2 release", null));
+
+        // link application to release
+        given(requestSpecification)
+            .when()
+            .put("/api/softwareRelease/{appId}/{rId}", appId, releaseId)
+            .then()
+            .statusCode(200);
+
+        given(requestSpecification)
+            .when()
+            .get("/api/softwareRelease/{releaseId}", releaseId)
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body("description", is("Test V2 release"))
+            .body("releaseDate", is("2026-12-31"))
+            .body("gitTags", contains("v2.1.2026"));
     }
 
     @Test
