@@ -1,0 +1,298 @@
+{
+	"info": {
+		"_postman_id": "9ee4793f-1a8d-4467-adbf-f6053033b50b",
+		"name": "Test Containers Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "16797469"
+	},
+	"item": [
+		{
+			"name": "Release",
+			"item": [
+				{
+					"name": "Add Release",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"releaseDate\": \"2025-09-14\",\n\t\"description\": \"The description\"\n}"
+						},
+						"url": "http://localhost:8080/api/softwareRelease"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Release with apps",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"releaseDate\": \"2025-09-14\",\n\t\"description\": \"The release of 1\",\n\t\"applications\": [{\"name\": \"Accounting Service\", \"description\": \"App added with release\", \"owner\": \"Jane Doe\"},{\"name\": \"User Service\", \"description\": \"Another app added with release\", \"owner\": \"Jane Doe\"}]\n}"
+						},
+						"url": "http://localhost:8080/api/softwareRelease"
+					},
+					"response": []
+				},
+				{
+					"name": "Link Release to app",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost:8080/api/softwareRelease/1/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Link release to app 2",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost:8080/api/softwareRelease/2/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Get release Data",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"releaseDate\": \"2025-09-01\",\n\t\"description\": \"The description\",\n\t\"applications\": [{\"name\": \"New App1\", \"description\": \"App added with release\", \"owner\": \"Jane Doe\"},{\"name\": \"New App2\", \"description\": \"Another app added with release\", \"owner\": \"Jane Doe\"}]\n}"
+						},
+						"url": "http://localhost:8080/api/softwareRelease/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tickets",
+			"item": [
+				{
+					"name": "Add ticket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"title\": \"Multiple Assignees Needed\",\n\t\"description\" : \"There are cases where we need to assign a ticket to more than one person.\",\n\t\"application\": {\"id\":\"1\"},\n\t\"release\": {\"id\":\"1\"},\n\t\"status\": \"Open\"\n}"
+						},
+						"url": "{{apiUrl}}/api/ticket"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ticket",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{apiUrl}}/api/ticket/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all tickets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{apiUrl}}/api/tickets"
+					},
+					"response": []
+				},
+				{
+					"name": "Close ticket",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": "{{apiUrl}}/api/ticket/resolve/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Rating",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"ticketId\": 1,\r\n\t\"comment\" : \"An application used to track defects and enhancements.\",\r\n\t\"stars\" : 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{apiUrl}}/api/ratings/add"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ratings of a ticket",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}/api/ratings?ticketId=1",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings"
+							],
+							"query": [
+								{
+									"key": "ticketId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Add Application",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Demo\",\n\t\"description\" : \"An application used to track defects and enhancements.\",\n\t\"owner\": \"Kesha Williams\"\n}"
+				},
+				"url": "http://localhost:8080/api/application"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/application/5",
+				"description": "A specific application id"
+			},
+			"response": []
+		},
+		{
+			"name": "Get all applications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/applications",
+				"description": "list all applications"
+			},
+			"response": []
+		},
+		{
+			"name": "Update App",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": 2,\n\t\"name\": \"Demo update\",\n\t\"description\": \"The new description\",\n    \"owner\": \"John Doe\"\n}"
+				},
+				"url": "http://localhost:8080/api/application"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete App by ID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:8080/api/application/1"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "apiUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
