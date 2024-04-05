@@ -30,6 +30,7 @@ import org.testcontainers.containers.KafkaContainer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /*
  * Test class using the approach of having a configuration class with the testcontainers configurations
@@ -134,6 +135,7 @@ public class KafkaTicketRatingsTest extends BaseRestAssuredIntegrationTest {
                     record.value().getComment().equals(comment));
             });
 
+        // add multiple comments to same ticket
         List<String> comments = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
             comments.add(comment + i);
@@ -143,6 +145,21 @@ public class KafkaTicketRatingsTest extends BaseRestAssuredIntegrationTest {
                 .post("api/ratings/add");
         }
 
+        await()
+            .untilAsserted(() -> {
+                List<ConsumerRecord<Rating, Rating>> ratingsFromKafka = getRecordsFromTopic();
+                Assertions.assertThat(ratingsFromKafka.size()).isNotZero();
+                Assertions.assertThat(ratingsFromKafka)
+                    .allMatch(kafkaRating ->
+                        kafkaRating.value().getTicketId().equals(ticketId));
+                Assertions.assertThat(
+                        ratingsFromKafka.stream().map(ratingsRecords ->
+                            ratingsRecords.value().getComment())
+                            .collect(Collectors.toList()))
+                    .containsAll(comments);
+            });
+
+        //retrieve
         await()
             .untilAsserted(() -> {
                 ValidatableResponse validatableResponse = given(requestSpecification)
