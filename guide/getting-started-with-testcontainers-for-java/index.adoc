@@ -93,7 +93,7 @@ include::{codebase}/src/test/java/com/testcontainers/demo/CustomerServiceTest.ja
 
 Let us understand the code in our CustomerServiceTest.
 
-* We declared *PostgreSQLContainer* by passing the Docker image name *postgres:15-alpine*.
+* We declared *PostgreSQLContainer* by passing the Docker image name *postgres:16-alpine*.
 * The Postgres container is started using JUnit 5 *@BeforeAll* callback, which gets executed before running any test methods.
 * In *@BeforeEach* callback method, which gets executed before running every test method, we have created a *DBConnectionProvider* instance
   by passing the JDBC connection parameters obtained from the Postgres container and also created a *CustomerService* instance.
