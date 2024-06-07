@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.diffplug.spotless' version "6.23.0"
+    id 'com.diffplug.spotless' version "6.25.0"
 }
 
 group = 'com.testcontainers'
@@ -18,11 +18,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.postgresql:postgresql:42.6.0'
-    implementation 'ch.qos.logback:logback-classic:1.4.8'
+    implementation 'org.postgresql:postgresql:42.7.3'
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-    testImplementation 'org.testcontainers:postgresql:1.19.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.testcontainers:postgresql:1.19.8'
 }
 
 tasks.named('test') {

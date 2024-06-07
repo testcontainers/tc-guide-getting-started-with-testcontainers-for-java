@@ -12,7 +12,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 class CustomerServiceTest {
 
   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-    "postgres:15-alpine"
+    "postgres:16-alpine"
   );
 
   CustomerService customerService;
